@@ -1,11 +1,19 @@
+import { lazy, Suspense } from "react";
 import "./App.css";
 import { BrowserRouter, Route, Routes, Link } from "react-router";
-import Home from "./components/Home";
-import Product from "./components/Product";
-import Cart from "./components/Cart";
-import ProductDetails from "./components/ProductDetails";
+import ProtectedRoute from "./components/ProtectedRoute";
+// import Home from "./components/Home";
+// import Product from "./components/Product";
+// import Cart from "./components/Cart";
+// import ProductDetails from "./components/ProductDetails";
+
+const Home = lazy(() => import("./components/Home"));
+const Product = lazy(() => import("./components/Product"));
+const ProductDetails = lazy(() => import("./components/ProductDetails"));
+const Cart = lazy(() => import("./components/Cart"));
 
 function App() {
+  const isAuthenticated = false;
   return (
     <BrowserRouter>
       <nav>
@@ -21,12 +29,22 @@ function App() {
           </li>
         </ul>
       </nav>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/products" element={<Product />} />
-        <Route path="/products/:id" element={<ProductDetails />} />
-        <Route path="/cart" element={<Cart />} />
-      </Routes>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Product />} />
+          <Route path="/products/:id" element={<ProductDetails />} />
+
+          <Route
+            path="/cart"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Cart />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
